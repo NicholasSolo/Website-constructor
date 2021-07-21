@@ -186,7 +186,6 @@ img {
     left: 0;
     z-index: 25;
     background: linear-gradient(180deg, rgba(20, 18, 24, 0.2) 0%, #2D2D2D 100%);
-
 }
 
 .card-img {
@@ -235,6 +234,9 @@ img {
     max-width: 420px;
     margin-left: 0px;
 }
+.swiper-slide a {
+    text-decoration: none;
+}
 
 .footer {
     background-color: #141218;
@@ -262,6 +264,8 @@ img {
     display: none;
     z-index: 100;
 }
+
+
 
 @media (max-width: 760px) {
     .play {
