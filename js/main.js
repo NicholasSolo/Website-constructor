@@ -18,21 +18,6 @@ const createHeader = ({ title, header: { logo, social, menu } }) => {
     const header = getElement("header");
     const container = getElement("div", ["container"]);
     const wrapper = getElement("div", ["header"]);
-    const burger = getElement("button", ["menu-button"]);
-
-    document.addEventListener("click", e => {
-        let target = e.target;
-        if (target.matches(".menu-button")) {
-            burger.classList.toggle("menu-button-active");
-            wrapper.classList.toggle("header-active");
-        } else {
-            target = target.closest(".header-active");
-            if (!target) {
-                burger.classList.remove("menu-button-active");
-                wrapper.classList.remove("header-active");
-            }
-        }
-    });
 
     if (logo) {
         const logotype = getElement("img", ["logo"], {
@@ -54,8 +39,27 @@ const createHeader = ({ title, header: { logo, social, menu } }) => {
 
             return menuItem;
         });
+
         menuWrapper.append(...menuItems);
         wrapper.append(menuWrapper);
+
+        //добавляем бургер-меню
+        const burger = getElement("button", ["menu-button"]);
+        container.append(burger);
+
+        document.addEventListener("click", e => {
+            let target = e.target;
+            if (target.matches(".menu-button")) {
+                burger.classList.toggle("menu-button-active");
+                wrapper.classList.toggle("header-active");
+            } else {
+                target = target.closest(".header-active");
+                if (!target) {
+                    burger.classList.remove("menu-button-active");
+                    wrapper.classList.remove("header-active");
+                }
+            }
+        });
     }
 
     if (social) {
@@ -78,7 +82,7 @@ const createHeader = ({ title, header: { logo, social, menu } }) => {
     }
 
     header.append(container);
-    container.append(wrapper, burger);
+    container.append(wrapper);
 
     return header;
 };
@@ -161,6 +165,7 @@ const createMain = ({ title, main: { genre, rating, description, trailer, episod
         const episodesContainer = getElement('div', ['series']);
         const swiperContainer = getElement('div', ['swiper-container']);
         const swiperWrapper = getElement('div', ['swiper-wrapper']);
+        const arrow = getElement('button', ['arrow']);
 
         // Два варианта реализации слайдов:
 
@@ -189,10 +194,10 @@ const createMain = ({ title, main: { genre, rating, description, trailer, episod
             swiperSlide.innerHTML = `
             <a href="${slide.href}" target="_blank">
             <figure class="card">
-                <img class="card-img" src="${slide.episodePicture}" alt="${slide.episodeNumber}">
+                <img class="card-img" src="${slide.episodePicture}" alt="${slide.episodeNumber ? slide.episodeNumber : ''}">
                 <figcaption class="card-description">
-                  <p class="card-subtitle">${slide.episodeNumber}</p>
-                  <p class="card-title">${slide.episodeName}</p>
+                  <p class="card-subtitle">${slide.episodeNumber ? slide.episodeNumber : ''}</p>
+                  <p class="card-title">${slide.episodeName ? slide.episodeName : ''}</p>
                 </figcaption>
             </figure>
             <a/>
@@ -206,8 +211,30 @@ const createMain = ({ title, main: { genre, rating, description, trailer, episod
         });
 
         container.append(episodesContainer);
-        episodesContainer.append(swiperContainer, getElement('button', ['arrow']));
+        episodesContainer.append(swiperContainer, arrow);
         swiperContainer.append(swiperWrapper);
+
+
+        //swiper settings
+        new Swiper(swiperContainer, {
+            loop: true,
+            autoplay: true,
+            effect: 'slide',
+            navigation: {
+                nextEl: arrow,
+            },
+            breakpoints: {
+                320: {
+                    slidesPerView: 1,
+                    spaceBetween: 20
+                },
+                541: {
+                    slidesPerView: 2,
+                    spaceBetween: 40
+                }
+            }
+        });
+
     }
 
     return main;
@@ -242,18 +269,30 @@ const createFooter = ({ footer: { copyright, menu } }) => {
 const movieConstructor = (selector, options) => {
     const app = document.querySelector(selector);
     document.title = options.title;
-    document.head.append(
-        getElement("link", null, {
-            href: options.header.logo,
-            type: "image/x-icon",
-            rel: "shortcut icon",
-        })
-    );
 
     app.classList.add("body-app");
     app.style.backgroundImage = options.background ?
         `url(${options.background})` :
         "none";
+    app.style.color = options.fontColor || '';
+    app.style.backgroundColor = options.backgroundColor || '';
+
+    if (options.subColor) {
+        document.documentElement.style.setProperty('--sub-color', options.subColor);
+    }
+
+    if (options.favicon) {
+        const index = options.favicon.lastIndexOf('.');
+        const extension = options.favicon.slice(index + 1);
+
+        document.head.append(
+            getElement("link", null, {
+                href: options.favicon,
+                type: 'image/' + (extension === 'svg' ? 'svg-xml' : extension),
+                rel: "shortcut icon",
+            })
+        );
+    }
 
     if (options.header) {
         app.append(createHeader(options));
@@ -271,6 +310,10 @@ const movieConstructor = (selector, options) => {
 movieConstructor(".app", {
     title: "Witcher",
     background: "./witcher/background.jpg",
+    favicon: './witcher/logo.png',
+    fontColor: 'white',
+    backgroundColor: '#141218',
+    subColor: '#9D2929',
     header: {
         logo: "./witcher/logo.png",
         social: [
@@ -359,22 +402,4 @@ movieConstructor(".app", {
 
 
 
-//swiper settings
-new Swiper('.swiper-container', {
-    loop: true,
-    autoplay: true,
-    effect: 'slide',
-    navigation: {
-        nextEl: '.arrow',
-    },
-    breakpoints: {
-        320: {
-            slidesPerView: 1,
-            spaceBetween: 20
-        },
-        541: {
-            slidesPerView: 2,
-            spaceBetween: 40
-        }
-    }
-});
+
