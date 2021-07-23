@@ -181,10 +181,9 @@ const createMain = ({ title, main: { genre, rating, description, trailer, episod
         //         getElement('p', ['card-title'], { textContent: slide.episodeName })
         //     );
 
-        //     episodeWrapper.append(card);
         //     card.append(episodePreview, cardDescription);
-
-        //     swiperSlide.append(card);
+        //     episodeWrapper.append(card);
+        //     swiperSlide.append(episodeWrapper);
 
         //     return swiperSlide;
         // };
